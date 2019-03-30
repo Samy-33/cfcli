@@ -1,0 +1,77 @@
+{
+    "languages": {
+        "cpp11": {
+            "name": "C Plus Plus 11",
+            "isCompiled": true,
+            "compilerInfo": {
+                "compilerName": "GNU GCC",
+                "basicCompileCmd": "gcc {problemCode}.cpp -o {problemCode}.out -std=c++11"
+            },
+            "executionInfo": {
+                "basicExecuteCmd": "./{problemCode}.out",
+                "executeCmdWithInputFile": "./{problemCode}.out < {inputFileName}"
+            }
+        },
+        "cpp14": {
+            "name": "C Plus Plus 14",
+            "isCompiled": true,
+            "compilerInfo": {
+                "compilerName": "GNU GCC",
+                "basicCompileCmd": "gcc {problemCode}.cpp -o {problemCode}.out -std=c++14"
+            },
+            "executionInfo": {
+                "basicExecuteCmd": "./{problemCode}.out",
+                "executeCmdWithInputFile": "./{problemCode}.out < {inputFileName}"
+            }
+        },
+        "java": {
+
+        },
+        "python2.7": {
+            "name": "Python 2.7",
+            "isCompiled": false,
+            "executionInfo": {
+                "basicExecuteCmd": "python2.7 {problemCode}.py",
+                "executeCmdWithInputFile": "python2.7 {problemCode}.py < {inputFileName}"
+            }
+        },
+        "python3.6": {
+            "name": "Python 3.6",
+            "isCompiled": false,
+            "executionInfo": {
+                "basicExecuteCmd": "python3.6 {problemCode}.py",
+                "executeCmdWithInputFile": "python3.6 {problemCode}.py < {inputFileName}"
+            }
+        }
+    },
+    "editors": {
+        "vscode": {
+            "name": "Visual Studio Code",
+            "openingOptions": {
+                "basicOpen": "code &",
+                "fileOpen": "code {fileName} &"
+            }
+        },
+        "gedit": {
+            "name": "GNU Editor",
+            "openingOptions": {
+                "basicOpen": "gedit &",
+                "fileOpen": "gedit {fileName} &"
+            }
+        },
+        "vim": {
+            "name": "Vim Editor",
+            "openingOptions": {
+                "basicOpen": "gnome-terminal -e vim",
+                "fileOpen": "gnome-terminal -x vim {fileName}"
+            }
+        },
+        "nano": {
+            "name": "NANO Editor",
+            "openingOptions": {
+                "basicOpen": "gnome-terminal -e nano",
+                "fileOpen": "gnome-terminal -x nano {fileName}"
+            }
+        }
+    }
+}
