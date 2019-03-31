@@ -1,8 +1,11 @@
 import click
 from requests.exceptions import ConnectionError
 
+import settings
+from core.fetch import fetch_contest_data
 from core.init import clear_repository, initialize
-# from settings import logger
+from utils.config_utils import (get_supported_editors_list,
+                                get_supported_languages_list)
 from utils.constants import DEFAULT_EDITOR, DEFAULT_LANGUAGE
 
 
@@ -13,9 +16,10 @@ def cli():
 
 @cli.command()
 @click.option('-cc', '--contest-code', required=True, type=click.INT, help='Contest Code')
-@click.option('-l', '--language', default=DEFAULT_LANGUAGE, type=click.STRING,
-              help='Preferred Language')
-@click.option('-e', '--editor', default=DEFAULT_EDITOR, type=click.STRING, help='Preferred Editor')
+@click.option('-l', '--language', default=DEFAULT_LANGUAGE,
+              type=click.Choice(get_supported_languages_list()), help='Preferred Language')
+@click.option('-e', '--editor', default=DEFAULT_EDITOR,
+              type=click.Choice(get_supported_editors_list()), help='Preferred Editor')
 def init(contest_code, language, editor):
 
     try:
@@ -25,7 +29,9 @@ def init(contest_code, language, editor):
     except click.ClickException as e:
         raise e
     except Exception as e:
-        # clear_repository()
+        clear_repository()
+        if settings.DEBUG:
+            raise e
         raise click.ClickException(f'System Error Occured\nMessage: {e}')
 
 
@@ -36,15 +42,20 @@ def clean():
     except click.ClickException as e:
         raise e
     except Exception as e:
+        if settings.DEBUG:
+            raise e
         raise click.ClickException(f'System Error Occured\nMessage: {e}')
 
 
-# @cli.command()
-# def testing():
-
-# 	from utils.decorators import Rules, enforce_rules
-
-# 	@enforce_rules(Rules.UPCOMING_CONTEST)
-# 	def temporary():
-# 		pass
-# 	temporary()
+@cli.command()
+@click.option('-s', '--with-samples', 'fetch_samples', is_flag=True,
+              help='Fetch Samples testcases too.')
+def fetch(fetch_samples):
+    try:
+        fetch_contest_data(fetch_samples=fetch_samples)
+    except click.ClickException as e:
+        raise e
+    except Exception as e:
+        if settings.DEBUG:
+            raise e
+        raise click.ClickException(f'System Error Occerred\nMessage: {e}')

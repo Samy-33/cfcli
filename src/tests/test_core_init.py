@@ -25,7 +25,7 @@ class TestCoreInit(unittest.TestCase):
         is_initialized = init.helpers.is_already_initilized()
 
         if os.path.exists(backup_cfcli_path):
-            os.system(f'mv {backup_cfcli_path} {cfcli_path}p')
+            os.system(f'mv {backup_cfcli_path} {cfcli_path}')
 
         self.assertFalse(is_initialized)
 

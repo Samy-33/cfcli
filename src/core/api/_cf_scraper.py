@@ -1,13 +1,14 @@
 import os
+from itertools import zip_longest
 
 import click
 import requests as rq
 from bs4 import BeautifulSoup
-# from settings import logger
 from terminaltables import AsciiTable
 
 from core.popos.contest import Contest
 from core.popos.problem import Problem
+from settings import logger
 from utils.constants import (ALL_CONTSET_URL, CODEFORCES_HOST,
                              CONTEST_URL_STRING)
 
@@ -27,6 +28,12 @@ class ScraperHelpers:
     def is_contest_valid(self, http_response: rq.Response) -> bool:
         return http_response.url != ALL_CONTSET_URL
 
+    def get_problem_response(self, problem_url: str) -> rq.Response:
+        return rq.get(problem_url)
+
+    def is_problem_valid(self, http_response: rq.Response) -> bool:
+        return http_response.url != CODEFORCES_HOST
+
 
 class ParserHelpers:
 
@@ -35,7 +42,7 @@ class ParserHelpers:
         '''
         element = element.decode_contents()
         parsed_string = str(element).replace('<br/>', '\n').replace('<br>', '\n')
-        return parsed_string
+        return parsed_string.strip()
 
     def _split_text_and_strip(self, element: BeautifulSoup, delimiter: str) -> list:
         splitted = element.text.strip().split(delimiter)
@@ -71,6 +78,26 @@ class ParserHelpers:
             problems[problem.get_code()] = problem
 
         return problems
+
+    def parse_problem(self, problem_soup: BeautifulSoup):
+        samples_div = problem_soup.find('div', {'class': 'sample-test'})
+        inputs = samples_div.find_all('div', {'class': 'input'})
+        outputs = samples_div.find_all('div', {'class': 'output'})
+
+        if len(inputs) != len(outputs):
+            raise Exception('ParserError: Parsing Problem test failed.')
+
+        samples_data = []
+
+        for inpt, outp in zip_longest(inputs, outputs):
+            samples_data.append({
+                'input': self._parse_line_breaks_in_dom_elem(inpt.pre),
+                'output': self._parse_line_breaks_in_dom_elem(outp.pre)
+            })
+
+        logger.debug(f'samples: {samples_data}')
+
+        return samples_data
 
     def print_problems(self, problems: dict):
         table_data = [['Code', 'Name', 'Correct Submissions']]
@@ -112,3 +139,15 @@ def fetch_contest_info(contest_code: int) -> Contest:
     else:
         click.echo('Contest is yet to start.')
     return contest
+
+
+def fetch_problem_sample_tests(problem_url: str):
+    problem_response = scraper_helpers.get_problem_response(problem_url)
+
+    if not scraper_helpers.is_problem_valid(problem_response):
+        raise Exception(f'Invalid Problem Url provided: {problem_url}')
+
+    click.echo(f'Fetching Test Data for: {problem_url}')
+
+    problem_soup = BeautifulSoup(problem_response.text, 'html.parser')
+    return parser_helpers.parse_problem(problem_soup)
