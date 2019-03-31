@@ -1,7 +1,7 @@
 class Problem:
-    def __init__(self, code: int, name: str, url: str, time_limit: str, memory_limit: str, 
-        test_cases: list=[], correct_submissions: int=0):
-        
+    def __init__(self, code: int, name: str, url: str, time_limit: str, memory_limit: str,
+                 test_cases: list = [], correct_submissions: int = 0):
+
         self._code = code
         self._name = name
         self._url = url
@@ -12,7 +12,7 @@ class Problem:
 
     def get_code(self):
         return self._code
-    
+
     def get_name(self):
         return self._name
 
@@ -21,6 +21,12 @@ class Problem:
 
     def get_time_limit(self):
         return self._time_limit
+
+    def get_memory_limit(self):
+        return self._memory_limit
+
+    def get_test_cases(self):
+        return self._test_cases
 
     def get_correct_submissions(self):
         return self._correct_submissions

@@ -1,2 +1,0 @@
-InvalidContestException(Exception):
-    pass

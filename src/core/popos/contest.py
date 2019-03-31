@@ -7,6 +7,9 @@ class Contest:
     def get_contest_code(self):
         return self._contest_code
 
+    def get_problems(self):
+        return self._problems
+
     def add_problem(self, problem_code, problem):
         self._problems.update({problem_code: problem})
 

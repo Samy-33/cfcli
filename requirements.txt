@@ -3,6 +3,15 @@ bs4==0.0.1
 certifi==2018.8.24
 chardet==3.0.4
 Click==7.0
+-e git+https://github.com/Samy-33/cfcli@85844f48877cbd4a64e085be3bb9e361d60786e3#egg=CodeForces_CLI&subdirectory=src
+entrypoints==0.3
+flake8==3.7.7
 idna==2.7
+isort==4.3.16
+mccabe==0.6.1
+pdfkit==0.6.1
+pycodestyle==2.5.0
+pyflakes==2.1.1
 requests==2.21.0
+terminaltables==3.1.0
 urllib3==1.23

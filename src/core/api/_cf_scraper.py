@@ -1,17 +1,19 @@
-import click
-import requests as rq
 import os
 
+import click
+import requests as rq
 from bs4 import BeautifulSoup
+# from settings import logger
+from terminaltables import AsciiTable
+
 from core.popos.contest import Contest
 from core.popos.problem import Problem
-from settings import logger
-from terminaltables import AsciiTable
-from utils.constants import CONTEST_URL_STRING, CODEFORCES_HOST
+from utils.constants import (ALL_CONTSET_URL, CODEFORCES_HOST,
+                             CONTEST_URL_STRING)
 
 
 class ScraperHelpers:
-    
+
     def is_upcoming_contest(self, html: str) -> bool:
         '''Tells whether contest is upcoming or not
             Uses the fact that if problems are visible then it's not upcoming
@@ -22,9 +24,8 @@ class ScraperHelpers:
         contest_url = CONTEST_URL_STRING.format(contest_code=contest_code)
         return rq.get(contest_url)
 
-    def is_contest_valid(self, contest_code: int, http_response: rq.Response) -> bool:
-        contest_url = CONTEST_URL_STRING.format(contest_code=contest_code)
-        return http_response.url == contest_url
+    def is_contest_valid(http_response: rq.Response) -> bool:
+        return http_response.url != ALL_CONTSET_URL
 
 
 class ParserHelpers:
@@ -58,13 +59,14 @@ class ParserHelpers:
             problem_code = problem_info_cols[0].text.strip()
             problem_url = problem_info_cols[1].a['href'][1:]
             problem_url = os.path.join(CODEFORCES_HOST, problem_url)
-            
+
             splitted_second_col = self._split_text_and_strip(problem_info_cols[1], '\n')
             problem_name = splitted_second_col[0]
             time_limit, memory_limit = list(x.strip() for x in splitted_second_col[2].split(','))
             submissions = int(problem_info_cols[3].text.strip()[1:])
 
-            problem = Problem(problem_code, problem_name, problem_url, time_limit, memory_limit, correct_submissions=submissions)
+            problem = Problem(problem_code, problem_name, problem_url, time_limit,
+                              memory_limit, correct_submissions=submissions)
 
             problems[problem.get_code()] = problem
 
@@ -74,8 +76,9 @@ class ParserHelpers:
         table_data = [['Code', 'Name', 'Correct Submissions']]
 
         for _, problem in problems.items():
-            table_data.append([problem.get_code(), problem.get_name(), problem.get_correct_submissions()])
-        
+            table_data.append([problem.get_code(), problem.get_name(),
+                              problem.get_correct_submissions()])
+
         table = AsciiTable(table_data)
         click.echo(table.table)
 
@@ -83,10 +86,11 @@ class ParserHelpers:
 scraper_helpers = ScraperHelpers()
 parser_helpers = ParserHelpers()
 
+
 def fetch_contest_info(contest_code: int) -> Contest:
     page = scraper_helpers.get_contest_response(contest_code)
 
-    if not scraper_helpers.is_contest_valid(contest_code, page):
+    if not scraper_helpers.is_contest_valid(page):
         raise click.BadOptionUsage('code', 'Contest doesn\'t exist.')
 
     is_upcoming = scraper_helpers.is_upcoming_contest(page.text)
@@ -99,7 +103,7 @@ def fetch_contest_info(contest_code: int) -> Contest:
 
         for problem_code, problem in problems.items():
             contest.add_problem(problem_code, problem)
-        
+
         click.echo(f'Extracted {len(problems)} problems')
         response = input('Display problems list? [y/n] ')
 
@@ -108,4 +112,3 @@ def fetch_contest_info(contest_code: int) -> Contest:
     else:
         click.echo('Contest is yet to start.')
     return contest
-
