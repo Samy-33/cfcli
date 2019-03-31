@@ -24,7 +24,7 @@ class ScraperHelpers:
         contest_url = CONTEST_URL_STRING.format(contest_code=contest_code)
         return rq.get(contest_url)
 
-    def is_contest_valid(http_response: rq.Response) -> bool:
+    def is_contest_valid(self, http_response: rq.Response) -> bool:
         return http_response.url != ALL_CONTSET_URL
 
 
