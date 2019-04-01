@@ -49,13 +49,9 @@ helpers = InitHelpers()
 @enforce_rules(Rules.REPOSITORY_NOT_INITIALISED)
 def initialize(contest_code, language, editor):
 
-    if helpers.is_already_initilized():
-        click.echo('Repository already initialised!')
-        return
-
     click.echo('Checking contest validity...')
     if not helpers.valid_contest(contest_code):
-        raise click.BadOptionUsage('code', f'contest with code {contest_code} doesn\'t exist.')
+        raise click.ClickException(f'contest with code {contest_code} doesn\'t exist.')
 
     helpers.create_repository()
     helpers.create_local_conf_file(contest_code, language, editor)

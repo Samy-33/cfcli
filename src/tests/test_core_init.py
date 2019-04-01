@@ -1,33 +1,53 @@
-import os
 import unittest
-import uuid
 
-from core import init
-# from settings import logger
-from utils.constants import REPOSITORY_DIRECTORY_NAME
+import click
+
+from cli import clean, init
+from core import init as init_core
 
 
 class TestCoreInit(unittest.TestCase):
 
+    def setUp(self):
+        self.runner = click.testing.CliRunner()
+
     def test_valid_contest(self):
-        is_contest_valid = init.helpers.valid_contest(100)
+        is_contest_valid = init_core.helpers.valid_contest(100)
         self.assertTrue(is_contest_valid)
 
-    def test_is_already_initialized(self):
-        cfcli_path = os.path.join(os.getcwd(), REPOSITORY_DIRECTORY_NAME)
+    def test_init_command_passing(self):
+        '''Should pass for correct contest code
+        '''
+        with self.runner.isolated_filesystem():
+            result = self.runner.invoke(init, ['-cc', '100'])
+            self.assertEqual(result.exit_code, 0, f'init command fails for contest code 100.')
 
-        backup_cfcli_path = str(uuid.uuid4())
+    def test_init_command_failing(self):
+        '''Should fail with return code 1 for incorrect contest code
+        '''
+        with self.runner.isolated_filesystem():
+            result = self.runner.invoke(init, ['-cc', '0'])
+            self.assertEqual(result.exit_code, 1, f'Expected Return Code 1 found \
+                             {result.exit_code}')
 
-        if os.path.exists(cfcli_path):
-            backup_cfcli_path = cfcli_path + backup_cfcli_path
-            os.system(f'mv {cfcli_path} {backup_cfcli_path}')
+    def test_clean_command_passing(self):
+        '''Must pass for repository initialised
+        '''
+        with self.runner.isolated_filesystem():
+            self.runner.invoke(init, ['-cc', '100'])
 
-        is_initialized = init.helpers.is_already_initilized()
+            result = self.runner.invoke(clean)
+            self.assertEqual(result.exit_code, 0, f'Repository Initialized. But clean command \
+                             fails.')
 
-        if os.path.exists(backup_cfcli_path):
-            os.system(f'mv {backup_cfcli_path} {cfcli_path}')
+    def test_clean_command_failing(self):
+        '''Must fail as repository not initialised
+        '''
+        with self.runner.isolated_filesystem():
+            result = self.runner.invoke(clean)
 
-        self.assertFalse(is_initialized)
+            self.assertEqual(result.exit_code, 1, f'clean command returned code \
+                             {result.exit_code} instead of 1')
 
 
 if __name__ == '__main__':

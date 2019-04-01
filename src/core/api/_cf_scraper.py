@@ -9,8 +9,7 @@ from terminaltables import AsciiTable
 from core.popos.contest import Contest
 from core.popos.problem import Problem
 from settings import logger
-from utils.constants import (ALL_CONTSET_URL, CODEFORCES_HOST,
-                             CONTEST_URL_STRING)
+from utils.constants import CODEFORCES_HOST, CONTEST_URL_STRING
 
 
 class ScraperHelpers:
@@ -26,7 +25,7 @@ class ScraperHelpers:
         return rq.get(contest_url)
 
     def is_contest_valid(self, http_response: rq.Response) -> bool:
-        return http_response.url != ALL_CONTSET_URL
+        return http_response.url != CODEFORCES_HOST
 
     def get_problem_response(self, problem_url: str) -> rq.Response:
         return rq.get(problem_url)
@@ -118,7 +117,7 @@ def fetch_contest_info(contest_code: int) -> Contest:
     page = scraper_helpers.get_contest_response(contest_code)
 
     if not scraper_helpers.is_contest_valid(page):
-        raise click.BadOptionUsage('code', 'Contest doesn\'t exist.')
+        raise click.ClickException(f'Contest with code {contest_code} doesn\'t exist.')
 
     is_upcoming = scraper_helpers.is_upcoming_contest(page.text)
     contest = Contest(contest_code, is_upcoming)
