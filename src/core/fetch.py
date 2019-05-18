@@ -42,3 +42,13 @@ def fetch_contest_data(fetch_samples=False):
     fetch_helpers.store_contest_details(contest)
     if not contest.is_upcoming() and fetch_samples:
         fetch_helpers.store_problems_sample_tests(contest)
+
+
+@enforce_rules(Rules.FETCHED_CONTENT)
+def refresh_contest_data(refresh_samples=False):
+    contest_code = get_set_contest_code()
+    contest = get_contest(contest_code)
+
+    fetch_helpers.store_contest_details(contest)
+    if not contest.is_upcoming() and refresh_samples:
+        fetch_helpers.store_problems_sample_tests(contest)

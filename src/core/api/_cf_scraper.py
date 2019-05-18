@@ -9,7 +9,12 @@ from terminaltables import AsciiTable
 from core.popos.contest import Contest
 from core.popos.problem import Problem
 from settings import logger
-from utils.constants import CODEFORCES_HOST, CONTEST_URL_STRING
+from utils.constants import (ALL_CONTSET_URL, CODEFORCES_HOST,
+                             CONTEST_URL_STRING)
+
+headers = {
+    'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:65.0) Gecko/20100101 Firefox/65.0'
+}
 
 
 class ScraperHelpers:
@@ -22,13 +27,17 @@ class ScraperHelpers:
 
     def get_contest_response(self, contest_code: int) -> rq.Response:
         contest_url = CONTEST_URL_STRING.format(contest_code=contest_code)
-        return rq.get(contest_url)
+        return rq.get(contest_url, headers=headers)
+
+    def get_contest_head_response(self, contest_code: int) -> rq.Response:
+        contest_head_url = os.path.join(ALL_CONTSET_URL, str(contest_code))
+        return rq.get(contest_head_url, headers=headers)
 
     def is_contest_valid(self, http_response: rq.Response) -> bool:
-        return http_response.url != CODEFORCES_HOST
+        return http_response.url != ALL_CONTSET_URL
 
     def get_problem_response(self, problem_url: str) -> rq.Response:
-        return rq.get(problem_url)
+        return rq.get(problem_url, headers=headers)
 
     def is_problem_valid(self, http_response: rq.Response) -> bool:
         return http_response.url != CODEFORCES_HOST
